@@ -56,23 +56,32 @@ const productSchema = new mongoose.Schema({
    added_on:{ type:Date,default:Date.now }
 });
 const Products = mongoose.model('Products',productSchema);
-
 async function productList(value){
-  var name="test";
-  var added = "added_on";
-  var ord = -1;
+  const { title,orderBy,order,start,total } = value;
   const product = await Products
-  .find({title: { $regex: '.*' + name + '.*' } })
-  .sort([[''+added+'', ord]])
-  .skip()
-  .limit();
-  const userMap = {};
+  .find({title: { $regex: '.*' + title + '.*' } })
+  .sort([[''+orderBy+'', parseInt(order)]])
+  .skip(parseInt(start))
+  .limit(parseInt(total))
+  .select({title:1,short_des:1,cost_price:1,picture:1,added_on:1});
+  const userMap = [];
+  let k =0;
     product.forEach((product) => {
-        userMap[product._id] = product;
+        userMap.push(product);
+        k++;
     });
   return userMap;
+
+}
+
+async function listAllPads(value){
+  const counter = await Products
+  .find({title: { $regex: '.*' + value + '.*' } })
+  .countDocuments();
+  return counter;
 }
 
 module.exports = {
-  productList
+  productList,
+  listAllPads
 }
