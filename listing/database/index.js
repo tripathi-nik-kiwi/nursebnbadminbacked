@@ -33,9 +33,16 @@ const productSchema = new mongoose.Schema({
 });
 const Products = mongoose.model('Products',productSchema);
 async function productList(value){
-  const { title,orderBy,order,start,total } = value;
+  const { title,orderBy,order,start,total,status,isFeatured } = value;
+  let findArr = { status: { $in: status }};
+  if(!isFeatured)
+   findArr.isFeatured = 0;
   const product = await Products
-  .find({title: { $regex: '.*' + title + '.*' } })
+  .find(findArr)
+  .or([
+    {title: { $regex : new RegExp(title, "i") } },
+    {short_des: { $regex : new RegExp(title, "i") } }
+  ])
   .sort([[''+orderBy+'', parseInt(order)]])
   .skip(parseInt(start))
   .limit(parseInt(total))
@@ -51,8 +58,16 @@ async function productList(value){
 }
 
 async function listAllPads(value){
+  const { title,status,isFeatured } = value;
+  let findArr = { status: { $in: status }};
+  if(!isFeatured)
+   findArr.isFeatured = 0;
   const counter = await Products
-  .find({title: { $regex: '.*' + value + '.*' } })
+  .find(findArr)
+  .or([
+    {title: { $regex : new RegExp(title, "i") } },
+    {short_des: { $regex : new RegExp(title, "i") } }
+  ])
   .countDocuments();
   return counter;
 }

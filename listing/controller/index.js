@@ -6,7 +6,7 @@ module.exports.getAllList = async(req,res,next)=>{
     const details = await product_model.productList(req.query);
     results.result = details;
     if(req.query.initial){
-      const total = await product_model.listAllPads(req.query.title);
+      const total = await product_model.listAllPads(req.query);
       results.total = total;
     }
     res.status(200).json(results);
